@@ -1,8 +1,9 @@
 score = 0;
 cross = true;
+let gameIsOver = false; // Add a flag to track if the game is over
 
-audio = new Audio('music.mp33');
-audiogo = new Audio('gameover.mp33');
+audio = new Audio('images/music.mp3');
+audiogo = new Audio('images/gameover.mp3');
 setTimeout(() => {
     audio.play()
 }, 1000);
@@ -28,46 +29,46 @@ document.onkeydown = function (e) {
 }
 
 setInterval(() => {
-    dino = document.querySelector('.dino');
-    gameOver = document.querySelector('.gameOver');
-    obstacle = document.querySelector('.obstacle');
+    if (!gameIsOver) { // Check if the game is still ongoing
+        dino = document.querySelector('.dino');
+        gameOver = document.querySelector('.gameOver');
+        obstacle = document.querySelector('.obstacle');
 
-    dx = parseInt(window.getComputedStyle(dino, null).getPropertyValue('left'));
-    dy = parseInt(window.getComputedStyle(dino, null).getPropertyValue('top'));
+        dx = parseInt(window.getComputedStyle(dino, null).getPropertyValue('left'));
+        dy = parseInt(window.getComputedStyle(dino, null).getPropertyValue('top'));
 
-    ox = parseInt(window.getComputedStyle(obstacle, null).getPropertyValue('left'));
-    oy = parseInt(window.getComputedStyle(obstacle, null).getPropertyValue('top'));
+        ox = parseInt(window.getComputedStyle(obstacle, null).getPropertyValue('left'));
+        oy = parseInt(window.getComputedStyle(obstacle, null).getPropertyValue('top'));
 
-    offsetX = Math.abs(dx - ox);
-    offsetY = Math.abs(dy - oy);
-    // console.log(offsetX, offsetY)
-    if (offsetX < 73 && offsetY < 52) {
-        gameOver.innerHTML = "Game Over - Reload to Play Again"
-        obstacle.classList.remove('obstacleAni')
-        audiogo.play();
-        setTimeout(() => {
-            audiogo.pause();
-            audio.pause();
-        }, 1000);
+        offsetX = Math.abs(dx - ox);
+        offsetY = Math.abs(dy - oy);
+
+        if (offsetX < 73 && offsetY < 52) {
+            gameIsOver = true; // Set the game over flag
+            gameOver.innerHTML = "Game Over - Reload to Play Again";
+            obstacle.classList.remove('obstacleAni');
+            audiogo.play();
+            setTimeout(() => {
+                audiogo.pause();
+                audio.pause();
+            }, 1000);
+        } else if (offsetX <= 145 && cross) {
+            cross = false;
+            setTimeout(() => {
+                cross = true;
+            }, 1000);
+            setTimeout(() => {
+                aniDur = parseFloat(window.getComputedStyle(obstacle, null).getPropertyValue('animation-duration'));
+                newDur = aniDur - 0.1;
+                obstacle.style.animationDuration = newDur + 's';
+                console.log('New animation duration: ', newDur)
+            }, 500);
+            score += 1;
+            updateScore(score);
+        }
     }
-    else if (offsetX < 145 && cross) {
-        score += 1;
-        updateScore(score);
-        cross = false;
-        setTimeout(() => {
-            cross = true;
-        }, 1000);
-        setTimeout(() => {
-            aniDur = parseFloat(window.getComputedStyle(obstacle, null).getPropertyValue('animation-duration'));
-            newDur = aniDur - 0.1;
-            obstacle.style.animationDuration = newDur + 's';
-            console.log('New animation duration: ', newDur)
-        }, 500);
-
-    }
-
 }, 10);
 
 function updateScore(score) {
-    scoreCont.innerHTML = "Your Score: " + score
+    scoreCont.innerHTML = "Your Score: " + score;
 }
